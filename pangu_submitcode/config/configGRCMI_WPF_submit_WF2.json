@@ -1,0 +1,40 @@
+{
+  "data_root": "/home/ike/WY/pangu/data/processed",
+  "dataset_name": "wf2",
+  "turbine_indices": [
+    0
+  ],
+  "feature_indices": [
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+  ],
+  "target_feature_indices": [
+    0
+  ],
+  "sequence_length": 36,
+  "prediction_horizon": 12,
+  "batch_size": 32,
+  "deviceNum": 0,
+  "model": {
+    "name": "GRCMI-WPF",
+    "params": {
+      "hidden_size": 128,
+      "num_layers": 2,
+      "num_heads": 8,
+      "dropout": 0.1,
+      "fusion_weight": 0.8,
+      "max_len": 1000,
+      "pangu_spatial_H": 11,
+      "pangu_spatial_W": 11,
+      "pangu1_time_dim": 2,
+      "pangu1_height_dim": 5,
+      "pangu1_features_dim": 13,
+      "pangu2_time_dim": 2,
+      "pangu2_features_dim": 4,
+      "pangu_output_ratio": 0.1
+    }
+  },
+  "training": {
+    "num_epochs": 50,
+    "learning_rate": 0.0002
+  }
+}
