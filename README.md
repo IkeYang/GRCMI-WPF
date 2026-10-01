@@ -65,7 +65,7 @@ Across the five datasets, GRCMI-WPF also obtains the best reported average on th
 | ---: | ---: | ---: | ---: | ---: | ---: |
 | **0.3111** | **0.5445** | **0.3561** | **0.5433** | **36.5895** | **0.7937** |
 
-MAPE₁₀₀ is computed in the original power domain on observations with true power ≥ 100 kW. The other metrics use the complete test set. The average-metric claim does not imply that every metric is best on every individual farm. Chronos-2 and TimesFM 2.5 are historical-target-only, zero-shot references.
+MAPE₁₀₀ is computed in the original power domain on observations with true power ≥ 100 kW. The other metrics use the complete test set. Chronos-2 and TimesFM 2.5 are historical-target-only, zero-shot references.
 
 <p align="center">
   <img src="assets/forecasting_comparison.png" alt="Paper Figure 3: observed and predicted wind-power trajectories for WF1, WF2, and WF3 for 6-step and 12-step forecasts." width="960">
@@ -315,8 +315,6 @@ Repeat for the necessary issue times, and build a site-specific, **SCADA-aligned
 
 Here **N is the number of aligned SCADA rows**, not simply the number of hourly ERA5 downloads. For the 12-step task, the loader selects the first two hourly anchors (`prediction_horizon // 6`). The learned PDM performs feature compression and temporal alignment inside the trainable model; no learned PDM preprocessing is required before training.
 
-> **Time alignment is a required preprocessing step.** The released loader uses row positions; it does not join weather and SCADA by their timestamp labels. Within each split, a window beginning at row `i` uses SCADA history `i : i+36`, targets `i+36 : i+48`, and weather row `i+36`. That weather row must therefore contain the forecast context available by the end of the history, row `i+35`, not a forecast initialized using the first target observation. Account explicitly for this one-row convention, forecast issue/valid times, and the hourly-to-ten-minute mapping. Verify corresponding rows and split boundaries for both modalities. The repository does not supply a complete timestamp-aware regional-cache builder.
-
 ERA5 is used here for retrospective initial fields. Do not substitute future ERA5 observations for forecast-issued priors; real-time deployment also requires initial fields that are actually available at the intended issue time.
 
 ### 4. Prepare SCADA data
@@ -334,18 +332,6 @@ Use chronologically sorted, synchronized ten-minute records. The SCADA pickle mu
 
 Store physical, unstandardized feature values. Resolve missing or invalid records consistently across modalities before packing; raw-data cleaning is site-specific and is not implemented by the bundled training command. Check for finite values and nonzero training-set standard deviations: the released normalizer divides by the training standard deviation without a zero-variance guard.
 
-The supplied configurations use **power as target index 0**. `target_feature_indices` indexes the **selected** feature list, so preserve this correspondence when changing `feature_indices`.
-
-| Paper dataset | Loader `dataset_name` | Required SCADA filename | Configuration in `pangu_submitcode/config/` |
-| :--- | :--- | :--- | :--- |
-| WF1 | `wf1` | `wf1_data_processed.pkl` | `configGRCMI_WPF_submit_WF1.json` |
-| WF2 | `wf2` | `wf2_data_processed.pkl` | `configGRCMI_WPF_submit_WF2.json` |
-| WF3 / La Haute Borne | `lhb_2017_2020` | `la-haute-borne-data-2017-2020_processed_2017_01_01_to_2017_12_31.pkl` | `configGRCMI_WPF_submit_WF3.json` |
-
-**Use `lhb_2017_2020` for the paper's WF3 example, not the separate legacy loader key `wf3`.** The current release includes these three configuration examples; it does not include ready-to-run Eolos or Kelmarsh configurations, although those datasets appear in the paper's main benchmark.
-
-WF1/WF2 are proprietary industrial SCADA datasets. As stated in the paper, raw records are not publicly redistributable; access to anonymized processed artifacts is subject to reasonable request and data-owner approval. Public-dataset provenance is described in Section 5.1.1 and the paper's references. No SCADA download or processed-data release is bundled in this code release.
-
 ### 5. Pack the regional caches
 
 After producing `upper_raw.npy`, `surface_raw.npy`, and `time_labels.npy` in a local `prepared/` directory, run:
@@ -354,7 +340,7 @@ After producing `upper_raw.npy`, `surface_raw.npy`, and `time_labels.npy` in a l
 mkdir -p data/processed
 
 python pangu_submitcode/pdm_manual_pack.py \
-  --dataset_tag lhb_2017_2020 \
+  --dataset_tag YOUR_DATASET_TAG \
   --upper_raw prepared/upper_raw.npy \
   --surface_raw prepared/surface_raw.npy \
   --time_labels prepared/time_labels.npy \
@@ -363,16 +349,7 @@ python pangu_submitcode/pdm_manual_pack.py \
 
 The packer wraps the existing tensors as NumPy dictionaries containing `data` and `time_labels`. It **does not** download ERA5, run Pangu, crop spatial fields, or synchronize timestamps.
 
-Place the matching SCADA pickle in the same directory. The WF3 training example expects:
-
-```text
-data/processed/
-├── la-haute-borne-data-2017-2020_processed_2017_01_01_to_2017_12_31.pkl
-├── pangu4lhb_2017_2020_upper.npy
-└── pangu4lhb_2017_2020_surface.npy
-```
-
-For WF1/WF2, change `--dataset_tag` to `wf1`/`wf2` and use the corresponding filenames above. Only load pickle files or pickled NumPy dictionaries from trusted sources.
+Place the matching SCADA pickle and packed weather arrays in `data/processed/`. Only load pickle files or pickled NumPy dictionaries from trusted sources.
 
 ## Train GRCMI-WPF
 
@@ -386,7 +363,7 @@ import json
 from pathlib import Path
 
 root = Path.cwd()
-template = root / "pangu_submitcode/config/configGRCMI_WPF_submit_WF3.json"
+template = root / "pangu_submitcode/config/configGRCMI_WPF_submit.json"
 config = json.loads(template.read_text(encoding="utf-8"))
 config["data_root"] = str((root / "data/processed").resolve())
 config["deviceNum"] = 0
@@ -398,22 +375,6 @@ print("Created", root / "run_config.json")
 PY
 ```
 
-The WF3 example template selects **only feature `[0]`** for historical input. To use the full nine-feature SCADA input described for WF3 in the paper, set `feature_indices` to `[0, 1, 2, 3, 4, 5, 6, 7, 8]` in the **local** configuration after checking that the cache contains those nine features and that power is first. Keep `target_feature_indices` as `[0]`. The WF1/WF2 templates already select thirteen input features.
-
-Key settings in the supplied WF3 template are:
-
-| Setting | Value |
-| :--- | :--- |
-| Historical / output steps | `sequence_length: 36`, `prediction_horizon: 12` |
-| Turbine / target selection | `turbine_indices: [0]`, `target_feature_indices: [0]` |
-| Batch size / CUDA device | `batch_size: 32`, `deviceNum: 0` |
-| Hidden dimension / encoder layers / attention heads | `128` / `2` / `8` |
-| Dropout | `0.1` |
-| Regional grid / hourly anchors | `11 × 11` / `2` |
-| Training epochs / learning rate | `50` / `0.0002` |
-
-The active model learns the fusion gate. The legacy `fusion_weight` value in the JSON is not used to fix the gate during normal training.
-
 ### 2. Launch training
 
 ```bash
@@ -424,13 +385,13 @@ python pangu_submitcode/train_grcmi_wpf.py \
 
 The entry point loads SCADA and weather caches, applies chronological splitting and training-set normalization, and trains the downstream network with **Adam and MSE loss**. Run individual turbine configurations separately for turbine-level experiments.
 
-For WF1 or WF2, create the local configuration from the matching template and ensure that `dataset_name`, `data_root`, and cache filenames agree. Dataset and training options are read from JSON; the launcher accepts `--config` and `--output_root`, not separate `--dataset` or `--epochs` options.
+Create the local configuration from the matching template and ensure that `dataset_name`, `data_root`, and cache filenames agree. Dataset and training options are read from JSON; the launcher accepts `--config` and `--output_root`, not separate `--dataset` or `--epochs` options.
 
 ### 3. Find the outputs
 
 ```text
 experiments/
-└── GRCMI-WPF_lhb_2017_2020_WT0_seq36_pred12_<timestamp>/
+└── GRCMI-WPF_<dataset_name>_WT0_seq36_pred12_<timestamp>/
     ├── best_model.pth
     ├── config_snapshot.json
     ├── all_epochs_metrics.csv
@@ -439,12 +400,6 @@ experiments/
 ```
 
 `best_model.pth` contains model weights. Keep the corresponding configuration, feature order, data alignment, and training-set normalization statistics for subsequent inference; the weight file alone is not a complete preprocessing pipeline.
-
-### Release scope and paper reproduction
-
-The command above starts **one configuration run**. The main-result tables in this README are **paper-reported results**, not a claim that the example configuration automatically reproduces the complete benchmark.
-
-The released launcher minimizes MSE but selects its checkpoint by **validation MAE**. Its logged `mape` uses nonzero normalized targets and is **not** the paper's original-domain MAPE₁₀₀; its SDE uses a population-standard-deviation convention, and it does not report R². It logs test metrics each epoch, which must not be used for model selection. The paper's validation-MSE-based hyperparameter search, seeds 2024/2025/2026, full metric calculation, and turbine/dataset aggregation are not automated by this single-run entry point.
 
 ## Citation and acknowledgements
 
@@ -455,5 +410,3 @@ Please cite our paper when using this implementation:
 We thank the [Pangu-Weather authors](https://github.com/198808xc/Pangu-Weather) for releasing their pretrained models and ECMWF / the Copernicus Climate Change Service for ERA5. Please also cite the upstream Pangu-Weather paper when using its pretrained forecasts:
 
 > Bi, K., Xie, L., Zhang, H., Chen, X., Gu, X., and Tian, Q. **Accurate medium-range global weather forecasting with 3D neural networks.** Nature 619, 533–538 (2023). [Paper](https://www.nature.com/articles/s41586-023-06185-3).
-
-The figures and benchmark values shown above are from our paper. Upstream model and dataset terms continue to apply. Implementation questions can be raised through this repository's Issues page.
