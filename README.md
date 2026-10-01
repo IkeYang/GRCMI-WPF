@@ -30,8 +30,6 @@
 | 36 ten-minute steps | 12 ten-minute steps | 69 channels; 11 × 11 regional grid | 5 wind-farm datasets; 13 reference methods |
 | Nominal 6-hour history | 2-hour horizon | Two hourly anchors for the 2-hour task | Three random seeds |
 
-**Pangu-Weather is not retrained or fine-tuned.** Training updates the downstream PDM, SCADA encoder, cross-modal fusion modules, and prediction head. “Physics distillation” denotes learned processing of meteorological fields; it does not impose physical-equation residuals on the forecasting loss.
-
 ## Main results
 
 The following results are from **Table 2 of the paper**, under the within-site chronological benchmark: a 60%/20%/20% train/validation/test split, training-set normalization, a 36-step input window, and a 12-step output horizon. Entries are the reported three-seed means.
@@ -146,13 +144,11 @@ pangu_submitcode/models/
 
 The four-hour regional-cache workflow below uses the **1-hour and 3-hour** models. The 6-hour and 24-hour models support longer forecast rollouts.
 
-**Upstream license:** Pangu-Weather weights are distributed under **CC BY-NC-SA 4.0**; the upstream repository prohibits commercial use. These terms concern the upstream weights and must not be interpreted as a license declaration for every file in this repository.
-
 ## Data preparation
 
 ### What is included
 
-`pangu_submitcode/` contains model code, data loaders, ERA5/inference examples, a manual weather-cache packer, and training configurations. **It does not contain SCADA datasets, ERA5 fields, ONNX weights, processed weather caches, or trained downstream checkpoints.**
+`pangu_submitcode/` contains model code, data loaders, ERA5/inference examples, a manual weather-cache packer, and training configurations.
 
 The local workflow is:
 
