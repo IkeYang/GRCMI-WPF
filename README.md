@@ -1,10 +1,31 @@
 <div align="center">
 
+<!-- Logo sources: https://en.xaut.edu.cn/images/logo.png ; https://www.technion.ac.il/wp-content/uploads/2026/07/TechnionIIT-English-2-lines.png ; https://en.wikipedia.org/wiki/File:Wuhan_University_Logo.png ; https://en.wikipedia.org/wiki/File:CityU_logo.svg -->
+<p>
+  <img src="assets/institutions.png" alt="Xi'an University of Technology, Technion – Israel Institute of Technology, Wuhan University, and City University of Hong Kong" width="880">
+</p>
+
 # GRCMI-WPF
 
 ### A Cross-Scale Meteorological-Prior-Informed Adaptive Fusion Framework for Ultra-Short-Term Wind Power Forecasting
 
 **Official repository · Accepted by Engineering Applications of Artificial Intelligence (EAAI)**
+
+<p>
+  <a href="mailto:wangyunjeff@gmail.com">Yun Wang</a><sup>1,2</sup> &nbsp;·&nbsp;
+  <a href="mailto:luoxiyang2-c@my.cityu.edu.hk">Luoxiao Yang</a><sup>1</sup> &nbsp;·&nbsp;
+  <a href="mailto:icohen@ee.technion.ac.il">Israel Cohen</a><sup>2</sup> &nbsp;·&nbsp;
+  <a href="mailto:jingdongchen@ieee.org">Jingdong Chen</a><sup>3</sup> &nbsp;·&nbsp;
+  <a href="mailto:zijzhang@cityu.edu.hk">Zijun Zhang</a><sup>4</sup>
+</p>
+
+<p>
+  <sup>1</sup> State Key Laboratory of Water Engineering Ecology and Environment in Arid Area,<br>
+  Xi'an University of Technology, China.<br>
+  <sup>2</sup> Faculty of Electrical and Computer Engineering, Technion – Israel Institute of Technology, Israel.<br>
+  <sup>3</sup> School of Electronic Information, Wuhan University, China.<br>
+  <sup>4</sup> Department of Data Science, City University of Hong Kong, Hong Kong SAR, China.
+</p>
 
 *Bridging global weather forecasts and local wind-power dynamics through adaptive cross-modal fusion.*
 
@@ -401,7 +422,7 @@ experiments/
 
 Please cite our paper when using this implementation:
 
-> **A Cross-Scale Meteorological-Prior-Informed Adaptive Fusion Framework for Ultra-Short-Term Wind Power Forecasting.** Engineering Applications of Artificial Intelligence, accepted for publication.
+> Yun Wang, Luoxiao Yang, Israel Cohen, Jingdong Chen, and Zijun Zhang. **A Cross-Scale Meteorological-Prior-Informed Adaptive Fusion Framework for Ultra-Short-Term Wind Power Forecasting.** Engineering Applications of Artificial Intelligence, accepted for publication.
 
 We thank the [Pangu-Weather authors](https://github.com/198808xc/Pangu-Weather) for releasing their pretrained models and ECMWF / the Copernicus Climate Change Service for ERA5. Please also cite the upstream Pangu-Weather paper when using its pretrained forecasts:
 
