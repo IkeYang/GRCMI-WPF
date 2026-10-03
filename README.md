@@ -12,12 +12,14 @@
 **Official repository · Accepted by Engineering Applications of Artificial Intelligence (EAAI)**
 
 <p>
-  <a href="mailto:wangyunjeff@gmail.com">Yun Wang</a><sup>1,2</sup> &nbsp;·&nbsp;
-  <a href="mailto:luoxiyang2-c@my.cityu.edu.hk">Luoxiao Yang</a><sup>1</sup> &nbsp;·&nbsp;
-  <a href="mailto:icohen@ee.technion.ac.il">Israel Cohen</a><sup>2</sup> &nbsp;·&nbsp;
-  <a href="mailto:jingdongchen@ieee.org">Jingdong Chen</a><sup>3</sup> &nbsp;·&nbsp;
-  <a href="mailto:zijzhang@cityu.edu.hk">Zijun Zhang</a><sup>4</sup>
+  Yun Wang<sup>1,2</sup> &nbsp;·&nbsp;
+  Luoxiao Yang<sup>1,*</sup> &nbsp;·&nbsp;
+  Israel Cohen<sup>2</sup> &nbsp;·&nbsp;
+  Jingdong Chen<sup>3</sup> &nbsp;·&nbsp;
+  Zijun Zhang<sup>4</sup>
 </p>
+
+<p><sup>*</sup> Corresponding author: Luoxiao Yang.</p>
 
 <p>
   <sup>1</sup> State Key Laboratory of Water Engineering Ecology and Environment in Arid Area,<br>
